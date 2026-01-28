@@ -1,9 +1,12 @@
 package com.jinx.otp;
 
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Sprite;
+import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.utils.ScreenUtils;
 
 public class GameScreen implements Screen {
@@ -13,7 +16,13 @@ public class GameScreen implements Screen {
     final float BALL_WIDTH = 0.25f;
     final float BALL_HEIGHT = 0.25f;
 
+    final float RACKET_SPEEED = 1f;
+    final float BALL_SPEED = 0.5f;
+
     final Pong game;
+
+    PlayerDirection playerOneDirection;
+    PlayerDirection playerTwoDirection;
 
     Texture racketTexture;
     Texture ballTexture;
@@ -77,13 +86,70 @@ public class GameScreen implements Screen {
     @Override
     public void render(float delta) {
         input();
-        logic();
+        logic(delta);
         draw();
     }
 
-    private void input() {}
+    private void input() {
+        playerOneInput();
+        playerTwoInput();
+    }
 
-    private void logic() {}
+    private void playerOneInput() {
+        playerOneDirection = PlayerDirection.NONE;
+        if (Gdx.input.isKeyPressed(Input.Keys.UP)) {
+            playerOneDirection = PlayerDirection.UP;
+            return;
+        } 
+        if (Gdx.input.isKeyPressed(Input.Keys.DOWN)) {
+            playerOneDirection = PlayerDirection.DOWN;
+        }
+    }
+
+    private void playerTwoInput() {
+        playerTwoDirection = PlayerDirection.NONE;
+        if (Gdx.input.isKeyPressed(Input.Keys.W)) {
+            playerTwoDirection = PlayerDirection.UP;
+            return;
+        }
+        if (Gdx.input.isKeyPressed(Input.Keys.S)) {
+            playerTwoDirection = PlayerDirection.DOWN;
+        }
+    }
+
+    private void logic(float delta) {
+        final float racketSpeed = RACKET_SPEEED * delta;
+        final float ballSpeed = BALL_SPEED * delta;
+
+        final float maxRacketY = game.WORLD_HEIGHT - RACKET_HEIGHT;
+        final float minRacketY = 0f;
+
+        switch (playerOneDirection) {
+            case UP:
+                racketPlayerOneSprite.translateY(racketSpeed);
+                break;
+            case DOWN:
+                racketPlayerOneSprite.translateY(-racketSpeed);
+                break;
+            default:
+                break;
+        }
+        racketPlayerOneSprite.setY(
+                MathUtils.clamp(racketPlayerOneSprite.getY(), minRacketY, maxRacketY));
+
+        switch (playerTwoDirection) {
+            case UP:
+                racketPlayerTwoSprite.translateY(racketSpeed);
+                break;
+            case DOWN:
+                racketPlayerTwoSprite.translateY(-racketSpeed);
+                break;
+            default:
+                break;
+        }
+        racketPlayerTwoSprite.setY(
+                MathUtils.clamp(racketPlayerTwoSprite.getY(), minRacketY, maxRacketY));
+    }
 
     private void draw() {
         ScreenUtils.clear(Color.PINK);
@@ -121,6 +187,13 @@ public class GameScreen implements Screen {
     public void dispose() {
         racketTexture.dispose();
         ballTexture.dispose();
+    }
+
+
+    enum PlayerDirection {
+        UP,
+        DOWN,
+        NONE
     }
 
 }
