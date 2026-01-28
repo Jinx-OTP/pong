@@ -66,7 +66,7 @@ public class MainMenuScreen implements Screen {
         // In that case, we don't resize anything, and wait for the window to be a normal size before updating.
         if(width <= 0 || height <= 0) return;
 
-        game.viewport.update(width, height);
+        game.viewport.update(width, height, true);
     }
 
     @Override
